@@ -16,7 +16,10 @@ class MSWScraper:
         self.SPOTS = {
             'ocean-beach': 'https://magicseaweed.com/Ocean-Beach-Surf-Report/255/',
             'stinson-beach': 'https://magicseaweed.com/Stinson-Beach-Surf-Report/4216/',
-            'pacifica': 'https://magicseaweed.com/Linda-Mar-Pacifica-Surf-Report/819/'
+            'pacifica': 'https://magicseaweed.com/Linda-Mar-Pacifica-Surf-Report/819/',
+            'trestles': 'https://magicseaweed.com/Trestles-Surf-Report/291/',
+            '36th-street-newport': 'https://magicseaweed.com/36th-St-Newport-Surf-Report/4683/',
+            'blackies': 'https://magicseaweed.com/Blackies-Surf-Report/2575/'
         }
 
         if spot not in self.SPOTS:
@@ -59,7 +62,14 @@ class MSWScraper:
                     continue
 
                 if 'row-title' in td.attrs['class']:
-                    time = td.text.replace(" ", "")
+                    time_str = td.text.replace(" ", "")
+                    if time_str == 'Noon':
+                        time = 12
+                    elif time_str[-2:] == 'am':
+                        time = int(time_str[:-2]) % 12
+                    elif time_str[-2:] == 'pm':
+                        time = int(time_str[:-2]) % 12 + 12
+                    continue
 
                 if 'msw-fc-s' in td.attrs['class']:
                     height_data = td.text.replace(" ", "").split('-')
@@ -105,6 +115,7 @@ class MSWScraper:
         ax.set_ylabel('Wave height (ft.)')
         maxHeight = max(self.scraped_data[ndays].avgHeights)
         ax.set_ylim(0, maxHeight * 1.25)
+        ax.set_xlim(-1, 22)
 
         for rect in barPlot:
             height = rect.get_height()
